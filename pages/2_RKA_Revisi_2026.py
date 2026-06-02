@@ -18,17 +18,26 @@ from utils.style import load_css
 
 load_css()
 
+import base64
+
+# =====================================
 # IMPORT DATA
+# =====================================
+
 from utils.load_data_rka import (
     load_data,
     sheet_mapping
 )
 
+# =====================================
 # TITLE
+# =====================================
 
 st.title("RKA Revisi 2026")
 
+# =====================================
 # MENU PILIH DATA
+# =====================================
 
 selected_menu = st.pills(
     "Pilih Data",
@@ -36,7 +45,10 @@ selected_menu = st.pills(
     default=None
 )
 
+# =====================================
 # JUDUL
+# =====================================
+
 if selected_menu:
 
     st.markdown(
@@ -54,7 +66,10 @@ if selected_menu:
         unsafe_allow_html=True
     )
 
+# =====================================
 # LOAD DATA
+# =====================================
+
 if selected_menu:
 
     try:
@@ -69,23 +84,22 @@ if selected_menu:
 
         else:
 
+            # =====================================
             # HTML TABLE
+            # =====================================
+
             styled_html = df_clean.to_html(
                 index=False,
                 classes="custom-table"
             )
 
-            
             st.markdown(
-                styled_html,
+                f"""
+                <div class="table-container">
+                    {styled_html}
+                </div>
+                """,
                 unsafe_allow_html=True
-            )
-
-            st.dataframe(
-                df_clean,
-                height=600, # Mengunci tinggi tabel (muncul scroll vertikal)
-                use_container_width=True, # Mengunci lebar (muncul scroll horizontal)
-                hide_index=True
             )
 
     except Exception as e:
