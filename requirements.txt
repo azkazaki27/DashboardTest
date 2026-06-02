@@ -1,0 +1,6 @@
+streamlit
+pandas
+plotly
+base64
+datetime
+openpyxl
