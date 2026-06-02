@@ -34,24 +34,6 @@ SEMBUNYIKAN HEADER DEFAULT NAV
     padding-top: 18px !important;
 }
 
-/* =====================================
-LOGO CUSTOM
-===================================== */
-
-.sidebar-logo {
-
-    position: absolute;
-
-    top: 5px;
-
-    left: 10px;
-                
-
-    width: 190px;
-
-    z-index: 999999;
-}
-
     /* =====================================
     GLOBAL
     ===================================== */
@@ -370,7 +352,7 @@ LOGO CUSTOM
 
     .custom-table {
 
-        width: 100% !important;
+        width: max-content !important;
 
         min-width: 100%;
 
@@ -460,6 +442,34 @@ LOGO CUSTOM
         background-color: #EAF4FF;
     }
 
+    .table-container {
+
+        overflow: auto;
+
+        max-height: 700px;
+
+        border: 1px solid #DCE6F2;
+
+        border-radius: 12px;
+
+        background: white;
+    }
+
+    .custom-table thead th {
+
+        position: sticky;
+
+        top: 0;
+
+        z-index: 999;
+
+        background: linear-gradient(
+            180deg,
+            #0A5EB0 0%,
+            #00529C 100%
+        ) !important;
+    }
+
     /* =====================================
     ALERT / NOTIFICATION - COMPACT
     ===================================== */
@@ -510,7 +520,7 @@ TABLE FIX
 
     border-collapse: collapse !important;
 
-    width: 100% !important;
+    width: max-content !important;
 
     min-width: 100% !important;
 }
@@ -663,5 +673,66 @@ RESPONSIVE ADJUSTMENTS
     }
 }
 
+/* =====================================
+TABS CONTAINER
+===================================== */
+
+.stTabs {
+
+    background: white;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    border: 1px solid #D1D5DB;
+
+    margin-bottom: 20px;
+}
+
+/* =====================================
+TAB DEFAULT
+===================================== */
+
+.stTabs [data-baseweb="tab"] {
+
+    color: black !important;
+
+    font-weight: 600 !important;
+
+    background: white !important;
+
+    padding: 10px 20px !important;
+
+    border-radius: 0 !important;
+}
+
+/* =====================================
+TAB HOVER
+===================================== */
+
+.stTabs [data-baseweb="tab"]:hover {
+
+    color: #16A34A !important;
+}
+
+/* =====================================
+TAB AKTIF
+===================================== */
+
+.stTabs [aria-selected="true"] {
+
+    color: #16A34A !important;
+
+    background: white !important;
+
+    font-weight: 700 !important;
+
+    border-bottom: 3px solid #16A34A !important;
+}
+
+.stTabs [data-baseweb="tab-highlight"] {
+    background-color: transparent !important;
+}
     </style>
     """, unsafe_allow_html=True)
