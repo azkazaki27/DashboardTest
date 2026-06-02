@@ -17,13 +17,6 @@ from utils.style import load_css
 load_css()
 
 import base64
-
-# =====================================
-# ENCODE LOGO
-# =====================================
-
-
-
 # =====================================
 # IMPORT
 # =====================================
@@ -231,12 +224,6 @@ if selected_kantor:
 
         raw_value = non_null_values.iloc[0]
         for fmt in [
-            "%d-%m-%Y",
-            "%d/%m/%Y",
-            "%Y-%m-%d",
-            "%d %B %Y",
-            "%d %b %Y",
-            "%Y/%m/%d"
         ]:
             try:
                 return datetime.strptime(raw_value, fmt).date()
@@ -982,6 +969,460 @@ if selected_kantor:
     if kolom_asli_pencapaian and kolom_asli_pencapaian in df_clean.columns:
         cols_to_display.append(kolom_asli_pencapaian)
 
+    def to_number(x):
+
+        try:
+
+            return float(
+                str(x)
+                .replace(".", "")
+                .replace(",", ".")
+                .replace("%", "")
+            )
+
+        except:
+
+            return 0
+
+
+    def calc_growth(old_value, new_value):
+
+        if old_value == 0:
+            return 0
+
+        return (
+            (new_value - old_value)
+            / abs(old_value)
+        ) * 100
+
+    header_row = df_clean.iloc[0].fillna("").astype(str)
+
+    current_value = to_number(
+    total_pinjaman_row["_6"]
+    )
+
+    yoy_base = to_number(
+        total_pinjaman_row["POSISI"]
+    )
+
+    ytd_base = to_number(
+        total_pinjaman_row["_3"]
+    )
+
+    mtd_base = to_number(
+        total_pinjaman_row["_4"]
+    )
+
+    dtd_base = to_number(
+        total_pinjaman_row["_5"]
+    )
+
+    yoy_growth = calc_growth(
+        yoy_base,
+        current_value
+    )
+
+    ytd_growth = calc_growth(
+        ytd_base,
+        current_value
+    )
+
+    mtd_growth = calc_growth(
+        mtd_base,
+        current_value
+    )
+
+    dtd_growth = calc_growth(
+        dtd_base,
+        current_value
+    )
+
+    label_yoy = str(header_row["POSISI"])
+    label_ytd = str(header_row["_3"])
+    label_mtd = str(header_row["_4"])
+    label_dtd = str(header_row["_5"])
+    label_current = str(header_row["_6"])
+    # =====================================
+    # ANALISIS PERTUMBUHAN
+    # =====================================
+
+    tab_yoy, tab_ytd, tab_mtd, tab_dtd = st.tabs(
+        ["YOY", "YTD", "MTD", "DTD"]
+    )
+
+    with tab_yoy:
+
+        yoy_compare = pd.DataFrame({
+
+            "Kelompok": [
+                "Pinjaman",
+                "Pinjaman",
+                "SML",
+                "SML",
+                "NPL",
+                "NPL",
+                "DPK",
+                "DPK"
+            ],
+
+            "Periode": [
+                label_yoy,
+                label_current,
+                label_yoy,
+                label_current,
+                label_yoy,
+                label_current,
+                label_yoy,
+                label_current
+            ],
+
+            "Nilai": [
+
+                to_number(total_pinjaman_row["POSISI"]),
+                to_number(total_pinjaman_row["_6"]),
+
+                to_number(total_sml_row["POSISI"]),
+                to_number(total_sml_row["_6"]),
+
+                to_number(total_npl_row["POSISI"]),
+                to_number(total_npl_row["_6"]),
+
+                to_number(total_dpk_row["POSISI"]),
+                to_number(total_dpk_row["_6"])
+            ]
+        })
+
+        fig_yoy = px.bar(
+            yoy_compare,
+            x="Kelompok",
+            y="Nilai",
+            color="Periode",
+            barmode="group",
+            text="Nilai",
+            title=f"Perbandingan YOY ({label_yoy} & {label_current})"
+        )
+
+        fig_yoy.update_traces(
+            texttemplate="%{text:,.0f}",
+            textposition="outside",
+            textfont=dict(
+                color="black",
+                size=14
+            )
+        )
+
+        fig_yoy.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            font_color="black",
+            title_font=dict(
+                color="black"
+            ),
+            xaxis=dict(
+            title_font=dict(color="black"),
+            tickfont=dict(color="black")
+            ),
+
+            yaxis=dict(
+                title_font=dict(color="black"),
+                tickfont=dict(color="black")
+            ),
+
+            legend=dict(
+                title_font=dict(color="black"),
+                font=dict(color="black")
+            ),
+
+            margin=dict(
+                t=80
+            ),
+            height=450
+        )
+
+        st.plotly_chart(
+            fig_yoy,
+            use_container_width=True
+        )
+
+    with tab_ytd:
+
+        ytd_compare = pd.DataFrame({
+
+            "Kelompok": [
+                "Pinjaman",
+                "Pinjaman",
+                "SML",
+                "SML",
+                "NPL",
+                "NPL",
+                "DPK",
+                "DPK"
+            ],
+
+            "Periode": [
+                label_ytd,
+                label_current,
+                label_ytd,
+                label_current,
+                label_ytd,
+                label_current,
+                label_ytd,
+                label_current
+            ],
+
+            "Nilai": [
+
+                to_number(total_pinjaman_row["_3"]),
+                to_number(total_pinjaman_row["_6"]),
+
+                to_number(total_sml_row["_3"]),
+                to_number(total_sml_row["_6"]),
+
+                to_number(total_npl_row["_3"]),
+                to_number(total_npl_row["_6"]),
+
+                to_number(total_dpk_row["_3"]),
+                to_number(total_dpk_row["_6"])
+            ]
+        })
+
+        fig_ytd = px.bar(
+            ytd_compare,
+            x="Kelompok",
+            y="Nilai",
+            color="Periode",
+            barmode="group",
+            text="Nilai",
+            title=f"Perbandingan YTD ({label_ytd} & {label_current})"
+        )
+
+        fig_ytd.update_traces(
+            texttemplate="%{text:,.0f}",
+            textposition="outside",
+            textfont=dict(
+                color="black",
+                size=14
+            )
+        )
+
+        fig_ytd.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            font_color="black",
+            title_font=dict(
+                color="black"
+            ),
+            xaxis=dict(
+            title_font=dict(color="black"),
+            tickfont=dict(color="black")
+            ),
+
+            yaxis=dict(
+                title_font=dict(color="black"),
+                tickfont=dict(color="black")
+            ),
+
+            legend=dict(
+                title_font=dict(color="black"),
+                font=dict(color="black")
+            ),
+            margin=dict(
+                t=80
+            ),
+            height=450
+        )
+
+        st.plotly_chart(
+            fig_ytd,
+            use_container_width=True
+        )
+
+    with tab_mtd:
+
+        mtd_compare = pd.DataFrame({
+
+            "Kelompok": [
+                "Pinjaman",
+                "Pinjaman",
+                "SML",
+                "SML",
+                "NPL",
+                "NPL",
+                "DPK",
+                "DPK"
+            ],
+
+            "Periode": [
+                label_mtd,
+                label_current,
+                label_mtd,
+                label_current,
+                label_mtd,
+                label_current,
+                label_mtd,
+                label_current
+            ],
+
+            "Nilai": [
+
+                to_number(total_pinjaman_row["_4"]),
+                to_number(total_pinjaman_row["_6"]),
+
+                to_number(total_sml_row["_4"]),
+                to_number(total_sml_row["_6"]),
+
+                to_number(total_npl_row["_4"]),
+                to_number(total_npl_row["_6"]),
+
+                to_number(total_dpk_row["_4"]),
+                to_number(total_dpk_row["_6"])
+            ]
+        })
+
+        fig_mtd = px.bar(
+            mtd_compare,
+            x="Kelompok",
+            y="Nilai",
+            color="Periode",
+            barmode="group",
+            text="Nilai",
+            title=f"Perbandingan MTD ({label_mtd} & {label_current})"
+        )
+
+        fig_mtd.update_traces(
+            texttemplate="%{text:,.0f}",
+            textposition="outside",
+            textfont=dict(
+                color="black",
+                size=14
+            )
+        )
+
+        fig_mtd.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            font_color="black",
+            title_font=dict(
+                color="black"
+            ),
+            xaxis=dict(
+            title_font=dict(color="black"),
+            tickfont=dict(color="black")
+            ),
+
+            yaxis=dict(
+                title_font=dict(color="black"),
+                tickfont=dict(color="black")
+            ),
+
+            legend=dict(
+                title_font=dict(color="black"),
+                font=dict(color="black")
+            ),
+            margin=dict(
+                t=80
+            ),
+            height=450
+        )
+
+        st.plotly_chart(
+            fig_mtd,
+            use_container_width=True
+        )
+
+    with tab_dtd:
+
+        dtd_compare = pd.DataFrame({
+
+            "Kelompok": [
+                "Pinjaman",
+                "Pinjaman",
+                "SML",
+                "SML",
+                "NPL",
+                "NPL",
+                "DPK",
+                "DPK"
+            ],
+
+            "Periode": [
+                label_dtd,
+                label_current,
+                label_dtd,
+                label_current,
+                label_dtd,
+                label_current,
+                label_dtd,
+                label_current
+            ],
+
+            "Nilai": [
+
+                to_number(total_pinjaman_row["_5"]),
+                to_number(total_pinjaman_row["_6"]),
+
+                to_number(total_sml_row["_5"]),
+                to_number(total_sml_row["_6"]),
+
+                to_number(total_npl_row["_5"]),
+                to_number(total_npl_row["_6"]),
+
+                to_number(total_dpk_row["_5"]),
+                to_number(total_dpk_row["_6"])
+            ]
+        })
+
+        fig_dtd = px.bar(
+            dtd_compare,
+            x="Kelompok",
+            y="Nilai",
+            color="Periode",
+            barmode="group",
+            text="Nilai",
+            title=f"Perbandingan DTD ({label_dtd} & {label_current})"
+        )
+
+        fig_dtd.update_traces(
+            texttemplate="%{text:,.0f}",
+            textposition="outside",
+            textfont=dict(
+                color="black",
+                size=14
+            )
+        )
+
+        fig_dtd.update_layout(
+            paper_bgcolor="white",
+            plot_bgcolor="white",
+            font_color="black",
+            title_font=dict(
+                color="black"
+            ),
+            xaxis=dict(
+            title_font=dict(color="black"),
+            tickfont=dict(color="black")
+            ),
+
+            yaxis=dict(
+                title_font=dict(color="black"),
+                tickfont=dict(color="black")
+            ),
+
+            legend=dict(
+                title_font=dict(color="black"),
+                font=dict(color="black")
+            ),
+            margin=dict(
+                t=80
+            ),
+            height=450
+        )
+
+        st.plotly_chart(
+            fig_dtd,
+            use_container_width=True
+        )
+
     render_metrics("Total Pinjaman", total_pinjaman_row)
     pinjaman_details = get_detail_rows(df_clean, "TOTAL PINJAMAN")
     if not pinjaman_details.empty:
@@ -1128,16 +1569,3 @@ if selected_kantor:
             f" padding:4px 10px;"
             f" font-weight:600;"
         )
-
-    # Apply styling only if PENCAPAIAN RKA exists in flat columns (not MultiIndex)
-    styled_df = df_tampil
-    if not isinstance(df_tampil.columns, pd.MultiIndex) and alias_pencapaian in df_tampil.columns:
-        try:
-            styled_df = df_tampil.style.applymap(
-                highlight_pencapaian_cell,
-                subset=alias_pencapaian
-            )
-        except (KeyError, Exception):
-            styled_df = df_tampil
-
-    st.write(styled_df)
