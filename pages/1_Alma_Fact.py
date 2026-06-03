@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.style import load_css
 import requests
+import streamlit.components.v1 as components
 
 # =====================================
 # PAGE CONFIG
@@ -197,7 +198,8 @@ def ambil_gambar_via_gas(folder_id):
 
                     daftar_link_gambar.append({
                         "nama": item['nama'],
-                        "url": direct_url
+                        "url": direct_url,
+                        "id": item['id']
                     })
 
     except:
@@ -347,7 +349,14 @@ if tampilkan:
 
             st.caption(gbr['nama'])
 
-            st.image(
-                gbr['url'],
-                use_container_width=True
+            # Membuat URL Iframe Preview Google Drive
+            url_preview = f"https://drive.google.com/file/d/{gbr['id']}/preview"
+
+            # Menampilkan frame (Height bisa disesuaikan, misalnya 600 atau 800)
+            components.iframe(
+                url_preview, 
+                height=700, 
+                scrolling=True
             )
+            
+            st.divider() # Tambahan opsional agar ada batas antar frame
