@@ -320,58 +320,25 @@ if selected_kantor:
             )
         )
 
-        if selected_kantor == "KCP BTC":
+        
 
-            allowed = [
+        allowed = [
 
-                ("TOTAL PINJAMAN", "Small"),
+            ("TOTAL PINJAMAN", "Small"),
+            ("TOTAL PINJAMAN", "Konsumer"),
+            ("TOTAL PINJAMAN", "Micro"),
 
-                ("TOTAL SML", "Small"),
-                ("TOTAL SML", "Micro"),
+            ("TOTAL SML", "Small"),
+            ("TOTAL SML", "Konsumer"),
+            ("TOTAL SML", "Micro"),
 
-                ("TOTAL NPL", "Small"),
+            ("TOTAL NPL", "Small"),
+            ("TOTAL NPL", "Konsumer"),
+            ("TOTAL NPL", "Micro"),
 
-                ("TOTAL DPK", "Tabungan"),
-                ("TOTAL DPK", "Giro"),
-                ("TOTAL DPK", "Deposito")
-            ]
-
-        elif selected_kantor in ["KCP Bintaro", "KCP Graha"]:
-
-            allowed = [
-
-                ("TOTAL PINJAMAN", "Small"),
-
-                ("TOTAL SML", "Small"),
-                ("TOTAL SML", "Micro"),
-
-                ("TOTAL NPL", "Small"),
-                ("TOTAL NPL", "Micro"),
-
-                ("TOTAL DPK", "Tabungan"),
-                ("TOTAL DPK", "Giro"),
-                ("TOTAL DPK", "Deposito")
-            ]
-
-        else:
-
-            allowed = [
-
-                ("TOTAL PINJAMAN", "Small"),
-                ("TOTAL PINJAMAN", "Konsumer"),
-                ("TOTAL PINJAMAN", "Micro"),
-
-                ("TOTAL SML", "Small"),
-                ("TOTAL SML", "Konsumer"),
-                ("TOTAL SML", "Micro"),
-
-                ("TOTAL NPL", "Small"),
-                ("TOTAL NPL", "Konsumer"),
-                ("TOTAL NPL", "Micro"),
-
-                ("TOTAL DPK", "Tabungan"),
-                ("TOTAL DPK", "Giro"),
-                ("TOTAL DPK", "Deposito")
+            ("TOTAL DPK", "Tabungan"),
+            ("TOTAL DPK", "Giro"),
+            ("TOTAL DPK", "Deposito")
             ]
 
         kpi_df = kpi_df[
@@ -653,7 +620,7 @@ if selected_kantor:
             y=100,
             line_dash="dash",
             line_color="#16A34A",
-            annotation_text="Target Hijau (99,99%)",
+            annotation_text="Target Hijau (100%)",
             annotation_position="top right",
             annotation_font=dict(
                 color="black",
@@ -675,8 +642,9 @@ if selected_kantor:
 
     def get_row_metrics(row):
         if row is None:
-            return ["", "", "", "", "", "", ""]
+            return ["", "", "", "", "", "", "", ""]
 
+        hari_ini = row.get("_6", "")
         ytd = row.get("DELTA", "")
         mtd = row.get("_7", "")
         dtd = row.get("_8", "")
@@ -684,7 +652,7 @@ if selected_kantor:
         rka = row.get(kolom_asli_rka, "") if kolom_asli_rka else ""
         gap = row.get(kolom_asli_gap, "") if kolom_asli_gap else ""
         pencapaian = row.get(kolom_asli_pencapaian, "") if kolom_asli_pencapaian else ""
-        return [ytd, mtd, dtd, yoy, rka, gap, pencapaian]
+        return [hari_ini, ytd, mtd, dtd, yoy, rka, gap, pencapaian]
 
     total_pinjaman_row = get_total_row(df_clean, "TOTAL PINJAMAN")
     total_sml_row = get_total_row(df_clean, "TOTAL SML")
@@ -731,10 +699,10 @@ if selected_kantor:
 
         values = get_row_metrics(row)
         st.subheader(title)
-        cols = st.columns(7)
-        for idx, label in enumerate(["YTD", "MTD", "DTD", "YOY", "RKA", "GAP RKA", "PENCAPAIAN RKA"]):
+        cols = st.columns(8)
+        for idx, label in enumerate(["HARI INI", "YTD", "MTD", "DTD", "YOY", "RKA", "GAP RKA", "PENCAPAIAN RKA"]):
             cols[idx].markdown(
-                f"<div style='font-size:14px; font-weight:600; color:#1F2937; margin-bottom:4px;'>{label}</div>"
+                f"<div style='font-size:12px; font-weight:600; color:#1F2937; margin-bottom:4px;'>{label}</div>"
                 + format_value(values[idx], label),
                 unsafe_allow_html=True
             )
@@ -815,19 +783,19 @@ if selected_kantor:
 
         allowed_segments = {
             "KCP BTC": {
-                "TOTAL PINJAMAN": ["A."],
-                "TOTAL SML": ["A.", "C."],
-                "TOTAL NPL": ["A."]
+                "TOTAL PINJAMAN": ["A.","B.", "C."],
+                "TOTAL SML": ["A.","B.", "C."],
+                "TOTAL NPL": ["A.","B.", "C."]
             },
             "KCP Bintaro": {
-                "TOTAL PINJAMAN": ["A."],
-                "TOTAL SML": ["A.", "C."],
-                "TOTAL NPL": ["A.", "C."]
+                "TOTAL PINJAMAN": ["A.","B.", "C."],
+                "TOTAL SML": ["A.","B.", "C."],
+                "TOTAL NPL": ["A.","B.", "C."]
             },
             "KCP Graha": {
-                "TOTAL PINJAMAN": ["A."],
-                "TOTAL SML": ["A.", "C."],
-                "TOTAL NPL": ["A.", "C."]
+                "TOTAL PINJAMAN": ["A.","B.", "C."],
+                "TOTAL SML": ["A.","B.", "C."],
+                "TOTAL NPL": ["A.","B.", "C."]
             }
         }
 
@@ -896,6 +864,7 @@ if selected_kantor:
         # Map column names to display names
         col_mapping = {
             "DELTA": "YTD",
+            "_6": "HARI INI",
             "_7": "MTD",
             "_8": "DTD",
             "_9": "YOY",
@@ -961,7 +930,8 @@ if selected_kantor:
                 # Values have slightly smaller font to maintain hierarchy and gap
                 row_cols[i + 1].markdown(f"<div style='text-align: right; font-size:13px;'>{colored_value}</div>", unsafe_allow_html=True)
 
-    cols_to_display = ["MATA ANGGARAN", "DELTA", "_7", "_8", "_9"]
+    # tambahkan kolom _6 (HARI INI / POSISI saat ini) di paling kiri setelah item
+    cols_to_display = ["MATA ANGGARAN", "_6", "DELTA", "_7", "_8", "_9"]
     if kolom_asli_rka and kolom_asli_rka in df_clean.columns:
         cols_to_display.append(kolom_asli_rka)
     if kolom_asli_gap and kolom_asli_gap in df_clean.columns:
