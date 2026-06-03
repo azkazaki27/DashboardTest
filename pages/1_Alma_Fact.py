@@ -163,7 +163,7 @@ def ambil_gambar_via_gas(folder_id):
 # =====================================
 
 def render_image_viewer(url_gambar, tinggi=400):
-    # Menyuntikkan HTML & JS Library Viewer.js ke dalam Streamlit
+    # Menyuntikkan HTML & JS Library Viewer.js ditambah fitur API Fullscreen bawaan Browser
     html_content = f"""
     <!DOCTYPE html>
     <html>
@@ -181,12 +181,18 @@ def render_image_viewer(url_gambar, tinggi=400):
             border-radius: 14px; border: 1px solid #E5E7EB; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
         }}
+        /* Membuat latar belakang viewer menjadi hitam pekat saat fullscreen */
+        .viewer-backdrop {{
+            background-color: rgba(0, 0, 0, 1) !important;
+        }}
       </style>
     </head>
     <body>
       <img id="image" src="{url_gambar}" alt="Laporan">
       <script>
-        const viewer = new Viewer(document.getElementById('image'), {{
+        const img = document.getElementById('image');
+        
+        const viewer = new Viewer(img, {{
           inline: false,
           button: true,
           navbar: false,
@@ -196,8 +202,35 @@ def render_image_viewer(url_gambar, tinggi=400):
           zoomable: true,
           rotatable: false,
           scalable: false,
-          transition: true,
-          fullscreen: true
+          transition: true
+        }});
+
+        // Fungsi untuk memaksa Iframe menerobos masuk ke mode Fullscreen HP
+        function requestFullScreen() {{
+          const doc = window.document.documentElement;
+          const req = doc.requestFullscreen || doc.webkitRequestFullscreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
+          if (req) {{
+            req.call(doc);
+          }}
+        }}
+
+        // Fungsi untuk mengembalikan ukuran ke semula saat ditutup
+        function exitFullScreen() {{
+          const doc = window.document;
+          const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+          if (exit) {{
+            exit.call(doc);
+          }}
+        }}
+
+        // Saat gambar diketuk & viewer mulai terbuka -> Masuk Fullscreen
+        img.addEventListener('show', function () {{
+          requestFullScreen();
+        }});
+
+        // Saat tombol X diketuk & viewer tertutup -> Keluar Fullscreen
+        img.addEventListener('hidden', function () {{
+          exitFullScreen();
         }});
       </script>
     </body>
