@@ -268,6 +268,39 @@ if selected_kantor:
     nama_bulan_ini = bulan_indo[bulan_angka].upper()
 
     def find_dynamic_col(df, prefix, month_label):
+        def parse_month_year(value):
+            if value is None:
+                return None
+
+            raw = str(value).strip()
+            if not raw:
+                return None
+
+            months = {
+                "JANUARI": "01", "JAN": "01", "JANUARY": "01",
+                "FEBRUARI": "02", "FEB": "02", "FEBRUARY": "02",
+                "MARET": "03", "MAR": "03", "MARCH": "03",
+                "APRIL": "04", "APR": "04",
+                "MEI": "05", "MAY": "05",
+                "JUNI": "06", "JUN": "06", "JUNE": "06",
+                "JULI": "07", "JUL": "07", "JULY": "07",
+                "AGUSTUS": "08", "AUG": "08", "AGU": "08", "AUGUST": "08",
+                "SEPTEMBER": "09", "SEP": "09", "SEPT": "09",
+                "OKTOBER": "10", "OKT": "10", "OCT": "10", "OCTOBER": "10",
+                "NOVEMBER": "11", "NOV": "11",
+                "DESEMBER": "12", "DES": "12", "DEC": "12", "DECEMBER": "12"
+            }
+
+            parts = raw.replace(".", "").split()
+            if len(parts) >= 2 and parts[-1].isdigit():
+                year = parts[-1]
+                month = parts[-2].upper()
+                if month in months:
+                    return f"{year}-{months[month]}"
+
+            return None
+
+        target_norm = parse_month_year(month_label)
         row0 = df.iloc[0].fillna("").astype(str)
 
         # First choose direct prefix matches like RKA, GAP RKA, or PENCAPAIAN RKA
@@ -276,10 +309,14 @@ if selected_kantor:
             if col == prefix or col.startswith(prefix + "_")
         ]
 
-        matching = [
-            col for col in candidates
-            if row0.get(col, "").strip() == month_label
-        ]
+        def column_matches_target(col):
+            raw_label = row0.get(col, "").strip()
+            norm = parse_month_year(raw_label)
+            if norm and target_norm:
+                return norm == target_norm
+            return raw_label == month_label
+
+        matching = [col for col in candidates if column_matches_target(col)]
         if matching:
             return matching[-1]
 
@@ -292,7 +329,7 @@ if selected_kantor:
             ]
             matching_underscore = [
                 col for col in underscore_candidates
-                if row0.get(col, "").strip() == month_label
+                if column_matches_target(col)
             ]
             if matching_underscore:
                 return matching_underscore[-1]
