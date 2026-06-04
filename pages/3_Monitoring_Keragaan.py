@@ -446,7 +446,7 @@ if selected_kantor:
                     padding:12px;
                     border-radius:10px;
                     border-left:5px solid #DC2626;
-                    min-height:300px;
+                    min-height:auto;
                     font-size:13px;
                     margin-bottom:12px;
                 ">
@@ -480,7 +480,7 @@ if selected_kantor:
                     padding:12px;
                     border-radius:10px;
                     border-left:5px solid #F59E0B;
-                    min-height:300px;
+                    min-height:auto;
                     font-size:13px;
                     margin-bottom:12px;
                 ">
@@ -514,7 +514,7 @@ if selected_kantor:
                     padding:12px;
                     border-radius:10px;
                     border-left:5px solid #16A34A;
-                    min-height:300px;
+                    min-height:auto;
                     font-size:13px;
                     margin-bottom:12px;
                 ">
