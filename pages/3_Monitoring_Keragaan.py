@@ -3,39 +3,66 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 
-# =====================================
 # PAGE CONFIG
-# =====================================
-
 st.set_page_config(
     page_title="Monitoring Keragaan",
     layout="wide"
 )
+# CUSTOM CSS UNTUK ST.EXPANDER
+st.markdown("""
+<style>
+/* 1. Warna header expander dalam kondisi normal (tertutup) */
+[data-testid="stExpander"] details summary {
+    background-color: #F8F9FA !important; /* Abu-abu sangat terang */
+    color: #111827 !important; /* Teks hitam/gelap */
+    border-radius: 8px !important;
+    border: 1px solid #E5E7EB !important;
+}
+
+/* 2. Warna header ketika kursor diarahkan (hover) */
+[data-testid="stExpander"] details summary:hover {
+    background-color: #E5E7EB !important; 
+}
+
+/* 3. Warna header saat expander DIBUKA (menghilangkan warna hitam) */
+[data-testid="stExpander"] details[open] summary {
+    background-color: #EFF6FF !important; /* Warna biru sangat muda agar elegan */
+    color: #00529C !important; /* Teks biru khas BRI */
+    border-bottom: none !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* 4. Warna background area konten di dalam expander */
+[data-testid="stExpander"] details[open] > div {
+    background-color: #FFFFFF !important; /* Latar putih bersih */
+    border-left: 1px solid #E5E7EB !important;
+    border-right: 1px solid #E5E7EB !important;
+    border-bottom: 1px solid #E5E7EB !important;
+    border-radius: 0 0 8px 8px !important;
+    padding: 16px !important;
+}
+
+/* Menghilangkan outline biru/hitam bawaan browser saat diklik */
+[data-testid="stExpander"] details summary:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 from utils.style import load_css
-
 load_css()
 
-import base64
-# =====================================
-# IMPORT
-# =====================================
 
 from utils.load_data import (
     load_data,
     sheet_mapping
 )
 
-# =====================================
 # TITLE
-# =====================================
-
 st.title("Monitoring Keragaan")
 
-# =====================================
 # KPI WARNING FUNCTION
-# =====================================
-
 def status_kpi(x):
 
     if pd.isna(x):
@@ -84,10 +111,7 @@ def get_kpi_df(df_clean, pencapaian_col):
                 row["_1"]
             ).upper().strip()
 
-        # ====================
         # HEADER
-        # ====================
-
         if "TOTAL PINJAMAN" in nama:
 
             current_kelompok = "TOTAL PINJAMAN"
@@ -103,10 +127,7 @@ def get_kpi_df(df_clean, pencapaian_col):
         elif "TOTAL DPK" in nama:
 
             current_kelompok = "TOTAL DPK"
-                # ====================
                 # DETAIL DPK
-                # ====================
-
         elif current_kelompok == "TOTAL DPK":
 
             sub2 = ""
@@ -147,10 +168,7 @@ def get_kpi_df(df_clean, pencapaian_col):
                     )
                 )
 
-        # ====================
         # PINJAMAN / SML / NPL
-        # ====================
-
         elif nama.startswith("A"):
 
             data.append(
@@ -191,17 +209,13 @@ def get_kpi_df(df_clean, pencapaian_col):
         ]
     )
 
-# =====================================
 # PILIH KANTOR
-# =====================================
-
 selected_kantor = st.pills(
     "Pilih Kantor",
     list(sheet_mapping.keys())
 )
 
 # LOAD DATA
-
 if selected_kantor:
 
     df_clean, sheet_date = load_data(
@@ -240,7 +254,6 @@ if selected_kantor:
         st.subheader(f"Data {selected_kantor}")
 
     # DATAFRAME
-
     today = sheet_date or pd.Timestamp.now()
     bulan_angka = today.month  # Menghasilkan angka 1-12
     tahun_ini = today.year
@@ -296,10 +309,7 @@ if selected_kantor:
     kolom_asli_gap = find_dynamic_col(df_clean, "GAP RKA", target_month_label)
     kolom_asli_pencapaian = find_dynamic_col(df_clean, "PENCAPAIAN RKA", target_month_label)
     
-    # =====================================
     # WARNING KPI
-    # =====================================
-
     merah = pd.DataFrame()
     kuning = pd.DataFrame()
     hijau = pd.DataFrame()
@@ -319,26 +329,23 @@ if selected_kantor:
                 keep="first"
             )
         )
-
-        
-
         allowed = [
 
-            ("TOTAL PINJAMAN", "Small"),
-            ("TOTAL PINJAMAN", "Konsumer"),
-            ("TOTAL PINJAMAN", "Micro"),
+                ("TOTAL PINJAMAN", "Small"),
+                ("TOTAL PINJAMAN", "Konsumer"),
+                ("TOTAL PINJAMAN", "Micro"),
 
-            ("TOTAL SML", "Small"),
-            ("TOTAL SML", "Konsumer"),
-            ("TOTAL SML", "Micro"),
+                ("TOTAL SML", "Small"),
+                ("TOTAL SML", "Konsumer"),
+                ("TOTAL SML", "Micro"),
 
-            ("TOTAL NPL", "Small"),
-            ("TOTAL NPL", "Konsumer"),
-            ("TOTAL NPL", "Micro"),
+                ("TOTAL NPL", "Small"),
+                ("TOTAL NPL", "Konsumer"),
+                ("TOTAL NPL", "Micro"),
 
-            ("TOTAL DPK", "Tabungan"),
-            ("TOTAL DPK", "Giro"),
-            ("TOTAL DPK", "Deposito")
+                ("TOTAL DPK", "Tabungan"),
+                ("TOTAL DPK", "Giro"),
+                ("TOTAL DPK", "Deposito")
             ]
 
         kpi_df = kpi_df[
@@ -373,24 +380,15 @@ if selected_kantor:
             f"Gagal menampilkan KPI: {e}"
         )
 
-    # =====================================
     # DASHBOARD KPI
-    # =====================================
-
     col_warning, col_chart = st.columns([50, 50])
 
-    # =====================================
     # WARNING KPI (KIRI)
-    # =====================================
-
     with col_warning:
 
         c1, c2, c3 = st.columns(3)
 
-        # =====================
         # MERAH
-        # =====================
-
         with c1:
 
             html = ""
@@ -413,6 +411,7 @@ if selected_kantor:
                     border-left:5px solid #DC2626;
                     min-height:300px;
                     font-size:13px;
+                    margin-bottom:12px;
                 ">
                     <h4 style="color:#111827;font-size:14px;margin:0 0 8px 0;">
                         🔴 Perlu Perhatian ({len(merah)})
@@ -423,10 +422,7 @@ if selected_kantor:
                 unsafe_allow_html=True
             )
 
-        # =====================
         # KUNING
-        # =====================
-
         with c2:
 
             html = ""
@@ -449,6 +445,7 @@ if selected_kantor:
                     border-left:5px solid #F59E0B;
                     min-height:300px;
                     font-size:13px;
+                    margin-bottom:12px;
                 ">
                     <h4 style="color:#111827;font-size:14px;margin:0 0 8px 0;">
                         🟡 Mendekati Target ({len(kuning)})
@@ -459,10 +456,7 @@ if selected_kantor:
                 unsafe_allow_html=True
             )
 
-        # =====================
         # HIJAU
-        # =====================
-
         with c3:
 
             html = ""
@@ -485,6 +479,7 @@ if selected_kantor:
                     border-left:5px solid #16A34A;
                     min-height:300px;
                     font-size:13px;
+                    margin-bottom:12px;
                 ">
                     <h4 style="color:#111827;font-size:14px;margin:0 0 8px 0;">
                         🟢 Memenuhi Target ({len(hijau)})
@@ -495,10 +490,7 @@ if selected_kantor:
                 unsafe_allow_html=True
             )
 
-    # =====================================
     # GRAFIK KPI (KANAN)
-    # =====================================
-
     with col_chart:
 
         chart_df = kpi_df.copy()
@@ -620,7 +612,7 @@ if selected_kantor:
             y=100,
             line_dash="dash",
             line_color="#16A34A",
-            annotation_text="Target Hijau (100%)",
+            annotation_text="Target Hijau (99,99%)",
             annotation_position="top right",
             annotation_font=dict(
                 color="black",
@@ -642,8 +634,7 @@ if selected_kantor:
 
     def get_row_metrics(row):
         if row is None:
-            return ["", "", "", "", "", "", "", ""]
-
+            return ["", "", "","", "", "", "", ""]
         hari_ini = row.get("_6", "")
         ytd = row.get("DELTA", "")
         mtd = row.get("_7", "")
@@ -683,7 +674,7 @@ if selected_kantor:
             return (
                 f"<div style='display:inline-flex; align-items:center; justify-content:center;"
                 f" min-height:28px; padding:3px 10px; border-radius:12px;"
-                f" background:{background}; color:{color}; font-weight:700; font-size:20px; line-height:1.1;"
+                f" background:{background}; color:{color}; font-weight:700; font-size:18px; line-height:1.1;"
                 f" vertical-align:middle;'>{text}</div>"
             )
 
@@ -695,17 +686,82 @@ if selected_kantor:
                 color = "#DC2626"
             else:
                 color = "#00529C"
-            return f"<div style='font-size:20px; font-weight:700; color:{color};'>{text}</div>"
+            return f"<div style='font-size:18px; font-weight:700; color:{color};'>{text}</div>"
 
         values = get_row_metrics(row)
-        st.subheader(title)
-        cols = st.columns(8)
-        for idx, label in enumerate(["HARI INI", "YTD", "MTD", "DTD", "YOY", "RKA", "GAP RKA", "PENCAPAIAN RKA"]):
-            cols[idx].markdown(
-                f"<div style='font-size:12px; font-weight:600; color:#1F2937; margin-bottom:4px;'>{label}</div>"
-                + format_value(values[idx], label),
-                unsafe_allow_html=True
-            )
+        labels = ["HARI INI", "YTD", "MTD", "DTD", "YOY", "RKA", "GAP RKA", "PENCAPAIAN RKA"]
+        
+        #HTML UNTUK DESKTOP
+        desktop_html = f"<div class='kpi-title-desktop kpi-title'>{title}</div><div class='kpi-desktop'>"
+        for idx, label in enumerate(labels):
+            val_html = format_value(values[idx], label)
+            desktop_html += f"<div class='kpi-box'><div class='kpi-label'>{label}</div>{val_html}</div>"
+        desktop_html += "</div>"
+
+        #HTML UNTUK MOBILE (CARD STYLE)
+        hari_ini_val = format_value(values[0], labels[0])
+        penc_rka_val = format_value(values[7], labels[7])
+
+        mobile_html = f"""
+        <div class='kpi-mobile'>
+            <div class='kpi-mobile-header'>
+                <div class='kpi-mobile-title'>{title}</div>
+            </div>
+            <div class='kpi-mobile-main'>
+                <div class='kpi-mobile-val-box'>
+                    <div class='kpi-label'>{labels[0]}</div>
+                    {hari_ini_val}
+                </div>
+                <div class='kpi-mobile-val-box right'>
+                    <div class='kpi-label'>{labels[7]}</div>
+                    {penc_rka_val}
+                </div>
+            </div>
+            <details class='kpi-mobile-details'>
+                <summary>Tampilkan Semua Metrik</summary>
+                <div class='kpi-mobile-expanded'>
+        """
+        for idx in range(1, 7): # Menambahkan sisanya (YTD s.d. GAP RKA) ke dalam dropdown
+            val_html = format_value(values[idx], labels[idx])
+            mobile_html += f"<div class='kpi-box'><div class='kpi-label'>{labels[idx]}</div>{val_html}</div>"
+            
+        mobile_html += "</div></details></div>"
+
+        #GABUNGAN CSS & RENDER
+        css = """
+        <style>
+        .kpi-container { margin-bottom: 1.5rem; font-family: sans-serif; }
+        .kpi-title { font-size: 1.25rem; font-weight: 700; color: #1F2937; margin-bottom: 12px; }
+        .kpi-label { font-size: 10px; font-weight: 600; color: #6B7280; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        /* Desktop */
+        .kpi-desktop { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; align-items: center; margin-bottom: 10px; }
+        .kpi-box { display: flex; flex-direction: column; }
+        
+        /* Mobile */
+        .kpi-mobile { display: none; background: #ffffff; border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); border: 1px solid #f3f4f6; margin-bottom: 15px;}
+        .kpi-mobile-header { margin-bottom: 12px; border-bottom: 1px solid #f3f4f6; padding-bottom: 8px;}
+        .kpi-mobile-title { font-size: 18px; font-weight: 700; color: #00529C; }
+        .kpi-mobile-main { display: flex; justify-content: space-between; align-items: center; }
+        .kpi-mobile-val-box { display: flex; flex-direction: column; gap: 4px; }
+        .kpi-mobile-val-box.right { align-items: flex-end; }
+        
+        .kpi-mobile-details { margin-top: 16px; }
+        .kpi-mobile-details summary { font-size: 12px; color: #3B82F6; cursor: pointer; list-style: none; text-align: center; background: #EFF6FF; padding: 8px; border-radius: 8px; font-weight: 600; transition: background 0.2s;}
+        .kpi-mobile-details summary::-webkit-details-marker { display: none; }
+        .kpi-mobile-details[open] summary { margin-bottom: 12px; background: #F3F4F6; color: #4B5563; }
+        .kpi-mobile-expanded { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        
+        /* Logika Responsif */
+        @media (max-width: 768px) {
+            .kpi-desktop, .kpi-title-desktop { display: none !important; }
+            .kpi-mobile { display: block !important; }
+        }
+        </style>
+        """
+        
+        full_html = css + f"<div class='kpi-container'>{desktop_html}{mobile_html}</div>"
+        st.markdown(full_html, unsafe_allow_html=True)
 
     def get_detail_rows(df, total_keyword):
         """Extract child rows between a total and the next total"""
@@ -811,7 +867,6 @@ if selected_kantor:
 
     def display_detail_items(detail_df, cols_to_show, parent_total=None):
         """Display detail items in aligned columns like metrics.
-
         parent_total: optional string like 'TOTAL DPK' to apply contextual labels
         """
         if detail_df.empty:
@@ -824,9 +879,7 @@ if selected_kantor:
         def format_pencapaian_box(value):
             text = str(value).strip()
             try:
-                numeric = float(
-                    text.replace("%", "").replace(",", ".").strip()
-                )
+                numeric = float(text.replace("%", "").replace(",", ".").strip())
             except Exception:
                 numeric = None
 
@@ -845,9 +898,9 @@ if selected_kantor:
 
             return (
                 f"<span style='display:inline-flex; align-items:center; justify-content:center;"
-                f" min-height:16px; padding:2px 6px; border-radius:14px;"
-                f" background:{background}; color:{color}; font-weight:600;"
-                f" font-size:inherit; line-height:1.1; vertical-align:middle; text-align:right;'>"
+                f" min-height:16px; padding:4px 8px; border-radius:12px;"
+                f" background:{background}; color:{color}; font-weight:700;"
+                f" font-size:14px; line-height:1.2; vertical-align:middle; text-align:right;'>"
                 f"{text}</span>"
             )
 
@@ -859,29 +912,20 @@ if selected_kantor:
                 color = "#DC2626"
             else:
                 color = "#00529C"
-            return f"<span style='color:{color};'>{text}</span>"
+            return f"<span style='color:{color}; font-size:13px; font-weight:600;'>{text}</span>"
 
         # Map column names to display names
         col_mapping = {
-            "DELTA": "YTD",
-            "_6": "HARI INI",
-            "_7": "MTD",
-            "_8": "DTD",
-            "_9": "YOY",
-            kolom_asli_rka: "RKA",
-            kolom_asli_gap: "GAP RKA",
-            kolom_asli_pencapaian: "PENCAPAIAN RKA"
+            "DELTA": "YTD", "_6": "HARI INI", "_7": "MTD", "_8": "DTD", "_9": "YOY",
+            kolom_asli_rka: "RKA", kolom_asli_gap: "GAP RKA", kolom_asli_pencapaian: "PENCAPAIAN RKA"
         }
 
         # Contextual label maps per parent total
         parent_label_map = {
             "TOTAL DPK": {
-                "tabungan": "Tabungan",
-                "TABUNGAN": "Tabungan",
-                "giro": "Giro",
-                "GIRO": "Giro",
-                "deposito": "Deposito",
-                "DEPOSITO": "Deposito"
+                "tabungan": "Tabungan", "TABUNGAN": "Tabungan",
+                "giro": "Giro", "GIRO": "Giro",
+                "deposito": "Deposito", "DEPOSITO": "Deposito"
             },
         }
 
@@ -891,17 +935,27 @@ if selected_kantor:
         # Extract metric columns (skip MATA ANGGARAN)
         metric_cols = available_cols[1:]
         metric_labels = [col_mapping.get(c, c) for c in metric_cols]
+        
+        # Ekstrak index untuk metric utama di mobile
+        hari_ini_idx = metric_cols.index("_6") if "_6" in metric_cols else -1
+        pencapaian_idx = metric_cols.index(kolom_asli_pencapaian) if kolom_asli_pencapaian in metric_cols else -1
 
-        # Display header (Item column larger; metric headers slightly smaller)
-        header_cols = st.columns([2] + [1] * len(metric_labels))
-        header_cols[0].markdown("<div style='font-size:10px; font-weight:700; color:#111827; margin-bottom:4px;'>Item</div>", unsafe_allow_html=True)
-        for i, label in enumerate(metric_labels):
-            header_cols[i + 1].markdown(f"<div style='text-align: right; font-size:10px;'><b>{label}</b></div>", unsafe_allow_html=True)
+        html_str = "<div class='detail-container'>"
 
-        # Display each row (Item text bigger; values slightly smaller to keep visual gap)
+        #HTML UNTUK DESKTOP (Tabel Horizontal)
+        html_str += "<div class='detail-desktop'>"
+        
+        # Header Row
+        html_str += "<div class='detail-row header'>"
+        html_str += "<div class='detail-item-name'>ITEM</div>"
+        for label in metric_labels:
+            html_str += f"<div class='detail-metric-header'>{label}</div>"
+        html_str += "</div>"
+
+        # Data Rows
         for idx, row in detail_df[available_cols].iterrows():
             raw_item = str(row.iloc[0]).strip()
-
+            
             # For DPK, use _2 column value if available
             if parent_total == "TOTAL DPK" and "_2" in detail_df.columns:
                 raw_item = str(detail_df.iloc[idx]["_2"]).strip()
@@ -910,27 +964,95 @@ if selected_kantor:
 
             # apply contextual mapping if exists
             if parent_total and parent_total in parent_label_map:
-                # Try lowercase match first
                 item_name = parent_label_map[parent_total].get(raw_item_lower)
                 if not item_name:
-                    # Try original case
                     item_name = parent_label_map[parent_total].get(raw_item)
                 if not item_name:
                     item_name = get_item_label(raw_item)
             else:
                 item_name = get_item_label(raw_item)
+            
+            html_str += "<div class='detail-row'>"
+            html_str += f"<div class='detail-item-name'>{item_name}</div>"
+            for i, label in enumerate(metric_labels):
+                html_str += f"<div class='detail-metric-val'>{format_value_color(row.iloc[i + 1], label)}</div>"
+            html_str += "</div>"
+            
+        html_str += "</div>" 
 
-            row_cols = st.columns([2] + [1] * len(metric_labels))
-            # Item column larger and slightly bolder
-            row_cols[0].markdown(f"<div style='font-size:14px; font-weight:600; color:#111827;'>{item_name}</div>", unsafe_allow_html=True)
-            for i in range(len(metric_labels)):
-                value = row.iloc[i + 1]
-                label = metric_labels[i]
-                colored_value = format_value_color(value, label)
-                # Values have slightly smaller font to maintain hierarchy and gap
-                row_cols[i + 1].markdown(f"<div style='text-align: right; font-size:13px;'>{colored_value}</div>", unsafe_allow_html=True)
+        # --- HTML UNTUK MOBILE (Stacked Card) ---
+        html_str += "<div class='detail-mobile'>"
+        for idx, row in detail_df[available_cols].iterrows():
+            raw_item = str(row.iloc[0]).strip()
+            
+            if parent_total == "TOTAL DPK" and "_2" in detail_df.columns:
+                raw_item = str(detail_df.iloc[idx]["_2"]).strip()
 
-    # tambahkan kolom _6 (HARI INI / POSISI saat ini) di paling kiri setelah item
+            raw_item_lower = raw_item.lower().strip()
+            
+            if parent_total and parent_total in parent_label_map:
+                item_name = parent_label_map[parent_total].get(raw_item_lower) or parent_label_map[parent_total].get(raw_item) or get_item_label(raw_item)
+            else:
+                item_name = get_item_label(raw_item)
+            
+            val_hari_ini = format_value_color(row.iloc[hari_ini_idx + 1], "HARI INI") if hari_ini_idx != -1 else "-"
+            val_pencapaian = format_value_color(row.iloc[pencapaian_idx + 1], "PENCAPAIAN RKA") if pencapaian_idx != -1 else "-"
+
+            html_str += f"""
+            <div class='dmc-card'>
+                <div class='dmc-header'>{item_name}</div>
+                <div class='dmc-main'>
+                    <div class='dmc-box'>
+                        <div class='dmc-label'>HARI INI</div><div>{val_hari_ini}</div>
+                    </div>
+                    <div class='dmc-box' style='text-align:right;'>
+                        <div class='dmc-label'>PENCAPAIAN</div><div>{val_pencapaian}</div>
+                    </div>
+                </div>
+                <details class='dmc-details'>
+                    <summary>Detail Lainnya</summary>
+                    <div class='dmc-expanded'>
+            """
+            for i, label in enumerate(metric_labels):
+                if label not in ["HARI INI", "PENCAPAIAN RKA"]:
+                    html_str += f"<div class='dmc-box'><div class='dmc-label'>{label}</div><div>{format_value_color(row.iloc[i + 1], label)}</div></div>"
+            html_str += "</div></details></div>"
+        html_str += "</div></div>"
+
+        #GABUNGAN CSS & RENDER
+        css = """
+        <style>
+        /* CSS Desktop (Flexbox Horizontal) */
+        .detail-desktop { display: flex; flex-direction: column; width: 100%; margin-top: 10px; }
+        .detail-row { display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding: 10px 0; width: 100%; }
+        .detail-row.header { border-bottom: 2px solid #e5e7eb; padding-bottom: 2px; margin-bottom: 4px; }
+        
+        .detail-item-name { flex: 2; min-width: 120px; font-size: 12px; font-weight: 700; color: #111827; }
+        .detail-metric-header { flex: 1; text-align: right; font-size: 11px; font-weight: 7000; color: #4B5563; text-transform: uppercase; }
+        .detail-metric-val { flex: 1; text-align: right; white-space: nowrap; }
+        
+        /* CSS Mobile */
+        .detail-mobile { display: none; flex-direction: column; gap: 12px; margin-top: 10px;}
+        .dmc-card { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; }
+        .dmc-header { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 10px; border-bottom: 1px solid #eaeaea; padding-bottom: 8px;}
+        .dmc-main { display: flex; justify-content: space-between; align-items: center; }
+        .dmc-box { display: flex; flex-direction: column; gap: 4px;}
+        .dmc-label { font-size: 10px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        .dmc-details { margin-top: 12px; }
+        .dmc-details summary { font-size: 12px; color: #4B5563; cursor: pointer; text-align: center; background: #e5e7eb; padding: 6px; border-radius: 6px; font-weight: 600; list-style: none;}
+        .dmc-details summary::-webkit-details-marker { display: none; }
+        .dmc-expanded { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e5e7eb; }
+
+        /* Logika Responsif */
+        @media (max-width: 768px) {
+            .detail-desktop { display: none !important; }
+            .detail-mobile { display: flex !important; }
+        }
+        </style>
+        """
+        st.markdown(css + html_str, unsafe_allow_html=True)
+        
     cols_to_display = ["MATA ANGGARAN", "_6", "DELTA", "_7", "_8", "_9"]
     if kolom_asli_rka and kolom_asli_rka in df_clean.columns:
         cols_to_display.append(kolom_asli_rka)
@@ -1012,10 +1134,8 @@ if selected_kantor:
     label_mtd = str(header_row["_4"])
     label_dtd = str(header_row["_5"])
     label_current = str(header_row["_6"])
-    # =====================================
-    # ANALISIS PERTUMBUHAN
-    # =====================================
 
+    # ANALISIS PERTUMBUHAN
     tab_yoy, tab_ytd, tab_mtd, tab_dtd = st.tabs(
         ["YOY", "YTD", "MTD", "DTD"]
     )
@@ -1072,9 +1192,12 @@ if selected_kantor:
             title=f"Perbandingan YOY ({label_yoy} & {label_current})"
         )
 
+        max_value = yoy_compare["Nilai"].max()
+
         fig_yoy.update_traces(
             texttemplate="%{text:,.0f}",
             textposition="outside",
+            cliponaxis=False,
             textfont=dict(
                 color="black",
                 size=14
@@ -1090,12 +1213,15 @@ if selected_kantor:
             ),
             xaxis=dict(
             title_font=dict(color="black"),
-            tickfont=dict(color="black")
+            tickfont=dict(color="black"),
+            showgrid=False
             ),
 
             yaxis=dict(
                 title_font=dict(color="black"),
-                tickfont=dict(color="black")
+                tickfont=dict(color="black"),
+                range=[0, max_value * 1.20],
+                showgrid=False
             ),
 
             legend=dict(
@@ -1104,7 +1230,7 @@ if selected_kantor:
             ),
 
             margin=dict(
-                t=80
+                t=70
             ),
             height=450
         )
@@ -1166,9 +1292,12 @@ if selected_kantor:
             title=f"Perbandingan YTD ({label_ytd} & {label_current})"
         )
 
+        max_value = ytd_compare["Nilai"].max()
+
         fig_ytd.update_traces(
             texttemplate="%{text:,.0f}",
             textposition="outside",
+            cliponaxis=False,
             textfont=dict(
                 color="black",
                 size=14
@@ -1184,12 +1313,15 @@ if selected_kantor:
             ),
             xaxis=dict(
             title_font=dict(color="black"),
-            tickfont=dict(color="black")
+            tickfont=dict(color="black"),
+            showgrid=False
             ),
 
             yaxis=dict(
                 title_font=dict(color="black"),
-                tickfont=dict(color="black")
+                tickfont=dict(color="black"),
+                range=[0, max_value * 1.20],
+                showgrid=False
             ),
 
             legend=dict(
@@ -1197,7 +1329,7 @@ if selected_kantor:
                 font=dict(color="black")
             ),
             margin=dict(
-                t=80
+                t=70
             ),
             height=450
         )
@@ -1259,9 +1391,12 @@ if selected_kantor:
             title=f"Perbandingan MTD ({label_mtd} & {label_current})"
         )
 
+        max_value = mtd_compare["Nilai"].max()
+
         fig_mtd.update_traces(
             texttemplate="%{text:,.0f}",
             textposition="outside",
+            cliponaxis=False,
             textfont=dict(
                 color="black",
                 size=14
@@ -1277,12 +1412,15 @@ if selected_kantor:
             ),
             xaxis=dict(
             title_font=dict(color="black"),
-            tickfont=dict(color="black")
+            tickfont=dict(color="black"),
+            showgrid=False
             ),
 
             yaxis=dict(
                 title_font=dict(color="black"),
-                tickfont=dict(color="black")
+                tickfont=dict(color="black"),
+                range=[0, max_value * 1.20],
+                showgrid=False
             ),
 
             legend=dict(
@@ -1290,7 +1428,7 @@ if selected_kantor:
                 font=dict(color="black")
             ),
             margin=dict(
-                t=80
+                t=70
             ),
             height=450
         )
@@ -1352,9 +1490,12 @@ if selected_kantor:
             title=f"Perbandingan DTD ({label_dtd} & {label_current})"
         )
 
+        max_value = dtd_compare["Nilai"].max()
+
         fig_dtd.update_traces(
             texttemplate="%{text:,.0f}",
             textposition="outside",
+            cliponaxis=False,
             textfont=dict(
                 color="black",
                 size=14
@@ -1370,12 +1511,15 @@ if selected_kantor:
             ),
             xaxis=dict(
             title_font=dict(color="black"),
-            tickfont=dict(color="black")
+            tickfont=dict(color="black"),
+            showgrid=False
             ),
 
             yaxis=dict(
                 title_font=dict(color="black"),
-                tickfont=dict(color="black")
+                tickfont=dict(color="black"),
+                range=[0, max_value * 1.20],
+                showgrid=False
             ),
 
             legend=dict(
@@ -1383,7 +1527,7 @@ if selected_kantor:
                 font=dict(color="black")
             ),
             margin=dict(
-                t=80
+                t=70
             ),
             height=450
         )
@@ -1429,10 +1573,7 @@ if selected_kantor:
         kolom_asli_pencapaian: alias_pencapaian
     }
 
-    # =====================================
     # FILTER & TAMPILKAN
-    # =====================================
-
     # Masukkan nama asli ke target kolom
     target_kolom_dinamis = [
         kolom_asli_rka,
@@ -1474,10 +1615,7 @@ if selected_kantor:
     # Buat salinan dataframe khusus untuk ditampilkan, lalu rename nama kolomnya
     df_tampil = df_clean[kolom_final].rename(columns=rename_mapping)
 
-    # =====================================
     # GROUPING KOLOM (MULTI-INDEX HEADER)
-    # =====================================
-
     # Pasangkan nama kolom yang sudah menjadi spasi tadi ke "DATA REALISASI"
     header_mapping = {
         # Semua spasi kosong dimasukkan ke grup yang sama
