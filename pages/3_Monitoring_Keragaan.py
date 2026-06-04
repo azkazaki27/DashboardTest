@@ -1040,6 +1040,10 @@ if selected_kantor:
                     item_name = get_item_label(raw_item)
             else:
                 item_name = get_item_label(raw_item)
+
+            # Hide "Retail" row for Total Pinjaman as requested
+            if parent_total == "TOTAL PINJAMAN" and str(item_name).strip().lower() == "retail":
+                continue
             
             html_str += "<div class='detail-row'>"
             html_str += f"<div class='detail-item-name'>{item_name}</div>"
@@ -1063,6 +1067,10 @@ if selected_kantor:
                 item_name = parent_label_map[parent_total].get(raw_item_lower) or parent_label_map[parent_total].get(raw_item) or get_item_label(raw_item)
             else:
                 item_name = get_item_label(raw_item)
+
+            # Hide "Retail" row for Total Pinjaman in mobile view as well
+            if parent_total == "TOTAL PINJAMAN" and str(item_name).strip().lower() == "retail":
+                continue
             
             val_hari_ini = format_value_color(row.iloc[hari_ini_idx + 1], "HARI INI") if hari_ini_idx != -1 else "-"
             val_pencapaian = format_value_color(row.iloc[pencapaian_idx + 1], "PENCAPAIAN RKA") if pencapaian_idx != -1 else "-"
