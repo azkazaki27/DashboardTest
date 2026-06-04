@@ -719,6 +719,22 @@ if selected_kantor:
             text = str(value)
             if label == "PENCAPAIAN RKA":
                 return format_pencapaian_box(text)
+
+            if title in ["Total NPL", "Total SML"] and label in ["YTD", "MTD", "DTD", "YOY"]:
+                try:
+                    numeric = float(text.replace("%", "").replace(",", "."))
+                except Exception:
+                    numeric = None
+
+                if numeric is not None:
+                    if numeric > 0:
+                        color = "#DC2626"
+                    elif numeric < 0:
+                        color = "#00529C"
+                    else:
+                        color = "#111827"
+                    return f"<div style='font-size:18px; font-weight:700; color:{color};'>{text}</div>"
+
             if text.strip().startswith("-"):
                 color = "#DC2626"
             else:
@@ -945,6 +961,22 @@ if selected_kantor:
             text = str(value).strip()
             if label == "PENCAPAIAN RKA":
                 return format_pencapaian_box(text)
+
+            if parent_total in ["TOTAL NPL", "TOTAL SML"] and label in ["YTD", "MTD", "DTD", "YOY"]:
+                try:
+                    numeric = float(text.replace("%", "").replace(",", "."))
+                except Exception:
+                    numeric = None
+
+                if numeric is not None:
+                    if numeric > 0:
+                        color = "#DC2626"
+                    elif numeric < 0:
+                        color = "#00529C"
+                    else:
+                        color = "#111827"
+                    return f"<span style='color:{color}; font-size:13px; font-weight:600;'>{text}</span>"
+
             if text.startswith("-"):
                 color = "#DC2626"
             else:
